@@ -65,7 +65,7 @@ export default function QuizCard({
 
     setIsPlaying(true)
     let cancelled = false
-    const timer = setTimeout(async () => {
+    const play = async () => {
       try {
         await playKana(targetKana.romaji, targetKana.char)
       } catch {
@@ -73,11 +73,11 @@ export default function QuizCard({
       } finally {
         if (!cancelled) setIsPlaying(false)
       }
-    }, 400)
+    }
+    play()
 
     return () => {
       cancelled = true
-      clearTimeout(timer)
       setIsPlaying(false)
     }
   }, [targetKana, pool])
