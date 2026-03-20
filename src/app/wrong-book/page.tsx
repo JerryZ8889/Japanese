@@ -8,6 +8,7 @@ import { useStore } from '@/store/useStore'
 import { getJpUserWrongChars } from '@/lib/supabase/wrong-chars'
 import { playKana } from '@/lib/audio/player'
 import { JpWrongChar } from '@/types'
+import { unlockAudio } from '@/lib/utils/audio-unlock'
 
 const STAGE_NAMES: Record<number, string> = { 1: '平假名', 2: '片假名', 3: '混合复习' }
 
@@ -122,7 +123,7 @@ export default function WrongBookPage() {
                   <span className="text-sm text-gray-500">{data.chars.length} 个</span>
                   <motion.button
                     whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={(e) => { e.stopPropagation(); router.push(`/wrong-quiz/${data.stage}/${data.unit}`) }}
+                    onClick={(e) => { e.stopPropagation(); unlockAudio(); router.push(`/wrong-quiz/${data.stage}/${data.unit}`) }}
                     className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-primary-pink to-primary-teal text-white text-sm font-medium rounded-lg"
                   >
                     <Play className="w-3 h-3" />

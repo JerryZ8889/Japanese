@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { unlockAudio } from '@/lib/utils/audio-unlock'
 import { ArrowLeft, CheckCircle2, Circle, PlayCircle } from 'lucide-react'
 import { useStore } from '@/store/useStore'
 import { getJpUserProgress } from '@/lib/supabase/progress'
@@ -97,7 +98,7 @@ export default function UnitSelectPage() {
               transition={{ delay: idx * 0.05 }}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => router.push(`/quiz/${stage}/${unit}`)}
+              onClick={() => { unlockAudio(); router.push(`/quiz/${stage}/${unit}`) }}
               className={`
                 p-4 rounded-2xl text-left shadow-sm transition-all
                 ${isCompleted

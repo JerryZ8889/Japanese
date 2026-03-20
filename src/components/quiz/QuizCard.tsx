@@ -13,7 +13,7 @@ import { KanaItem } from '@/types'
 /** 判断字符串首字是否为平假名 */
 const isHiragana = (char: string) => /[\u3041-\u3096]/.test(char[0])
 
-let audioUnlocked = false
+import { isAudioUnlocked, unlockAudio } from '@/lib/utils/audio-unlock'
 
 interface QuizCardProps {
   targetKana: KanaItem
@@ -58,8 +58,7 @@ export default function QuizCard({
     setIsCorrectState(null)
     setShowFeedback(false)
 
-    // 第一题：用户还没交互过，浏览器会拦截自动播放 → 不播放，用动画引导点击
-    if (!audioUnlocked) {
+    if (!isAudioUnlocked()) {
       setIsPlaying(false)
       return
     }
@@ -85,7 +84,7 @@ export default function QuizCard({
 
   const handleSpeak = async () => {
     if (isPlaying) return
-    audioUnlocked = true
+    unlockAudio()
     setIsPlaying(true)
     try {
       await playKana(targetKana.romaji, targetKana.char)
@@ -98,7 +97,7 @@ export default function QuizCard({
 
   const handleKanaClick = (kana: KanaItem) => {
     if (isAnswered) return
-    audioUnlocked = true
+    unlockAudio()
 
     setIsAnswered(true)
     setSelectedChar(kana.char)
@@ -142,9 +141,9 @@ export default function QuizCard({
         className="flex flex-col items-center mb-10"
       >
         <p className="text-gray-400 text-sm mb-4">
-          {!audioUnlocked ? '点击按钮开始听发音' : '点击按钮听发音，选出对应的假名'}
+          {!isAudioUnlocked() ? '点击按钮开始听发音' : '点击按钮听发音，选出对应的假名'}
         </p>
-        <SpeakerButton onClick={handleSpeak} isPlaying={isPlaying} showHint={!audioUnlocked && !isPlaying} />
+        <SpeakerButton onClick={handleSpeak} isPlaying={isPlaying} showHint={!isAudioUnlocked() && !isPlaying} />
       </motion.div>
 
       {/* 假名选项 - 一排四个 */}
