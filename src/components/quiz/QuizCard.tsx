@@ -13,6 +13,8 @@ import { KanaItem } from '@/types'
 /** 判断字符串首字是否为平假名 */
 const isHiragana = (char: string) => /[\u3041-\u3096]/.test(char[0])
 
+let audioUnlocked = false
+
 interface QuizCardProps {
   targetKana: KanaItem
   pool: KanaItem[]     // 整个阶段/混合池，用于选干扰项
@@ -56,13 +58,17 @@ export default function QuizCard({
     setIsCorrectState(null)
     setShowFeedback(false)
 
-    // 自动播放发音，延迟 400ms 等动画完成；2s 超时防止 autoplay 被拦截后卡住
+    // 第一题：用户还没交互过，浏览器会拦截自动播放 → 不播放，用动画引导点击
+    if (!audioUnlocked) {
+      setIsPlaying(false)
+      return
+    }
+
     setIsPlaying(true)
     let cancelled = false
     const timer = setTimeout(async () => {
       try {
-        const raceTimeout = new Promise<void>(r => setTimeout(r, 2000))
-        await Promise.race([playKana(targetKana.romaji, targetKana.char), raceTimeout])
+        await playKana(targetKana.romaji, targetKana.char)
       } catch {
         // ignore
       } finally {
@@ -79,6 +85,7 @@ export default function QuizCard({
 
   const handleSpeak = async () => {
     if (isPlaying) return
+    audioUnlocked = true
     setIsPlaying(true)
     try {
       await playKana(targetKana.romaji, targetKana.char)
@@ -91,6 +98,7 @@ export default function QuizCard({
 
   const handleKanaClick = (kana: KanaItem) => {
     if (isAnswered) return
+    audioUnlocked = true
 
     setIsAnswered(true)
     setSelectedChar(kana.char)
@@ -133,8 +141,10 @@ export default function QuizCard({
         animate={{ scale: 1, opacity: 1 }}
         className="flex flex-col items-center mb-10"
       >
-        <p className="text-gray-400 text-sm mb-4">点击按钮听发音，选出对应的假名</p>
-        <SpeakerButton onClick={handleSpeak} isPlaying={isPlaying} />
+        <p className="text-gray-400 text-sm mb-4">
+          {!audioUnlocked ? '点击按钮开始听发音' : '点击按钮听发音，选出对应的假名'}
+        </p>
+        <SpeakerButton onClick={handleSpeak} isPlaying={isPlaying} showHint={!audioUnlocked && !isPlaying} />
       </motion.div>
 
       {/* 假名选项 - 一排四个 */}

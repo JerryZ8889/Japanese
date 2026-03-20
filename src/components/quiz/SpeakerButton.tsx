@@ -6,18 +6,20 @@ import { Volume2 } from 'lucide-react'
 interface SpeakerButtonProps {
   onClick: () => void
   isPlaying: boolean
+  showHint?: boolean
 }
 
-export default function SpeakerButton({ onClick, isPlaying }: SpeakerButtonProps) {
+export default function SpeakerButton({ onClick, isPlaying, showHint = false }: SpeakerButtonProps) {
   return (
     <motion.button
       onClick={onClick}
       disabled={isPlaying}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.93 }}
+      animate={showHint && !isPlaying ? { scale: [1, 1.15, 1] } : {}}
+      transition={showHint && !isPlaying ? { duration: 1.2, repeat: Infinity } : {}}
       className="relative w-28 h-28 rounded-full bg-gradient-to-br from-primary-pink to-primary-teal text-white shadow-xl flex items-center justify-center disabled:opacity-80"
     >
-      {/* 播放时的波纹动画 */}
       {isPlaying && (
         <>
           <motion.div
