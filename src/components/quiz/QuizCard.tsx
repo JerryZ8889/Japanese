@@ -56,20 +56,22 @@ export default function QuizCard({
     setIsCorrectState(null)
     setShowFeedback(false)
 
-    // 自动播放发音，延迟 400ms 等动画完成
+    // 自动播放发音，延迟 400ms 等动画完成；2s 超时防止 autoplay 被拦截后卡住
     setIsPlaying(true)
+    let cancelled = false
     const timer = setTimeout(async () => {
       try {
-        await playKana(targetKana.romaji, targetKana.char)
+        const raceTimeout = new Promise<void>(r => setTimeout(r, 2000))
+        await Promise.race([playKana(targetKana.romaji, targetKana.char), raceTimeout])
       } catch {
         // ignore
       } finally {
-        setIsPlaying(false)
+        if (!cancelled) setIsPlaying(false)
       }
     }, 400)
 
-    // cleanup：清定时器并重置 isPlaying，防止 StrictMode 第一次 cleanup 后卡住
     return () => {
+      cancelled = true
       clearTimeout(timer)
       setIsPlaying(false)
     }
