@@ -1,0 +1,36 @@
+{
+  "stage": 3,
+  "name": "混合复习",
+  "nameJa": "まとめ",
+  "totalUnits": 4,
+  "units": [
+    {
+      "unit": 1,
+      "name": "清音综合（平・片假名）",
+      "sourceStages": [1, 2],
+      "sourceUnits": [1, 2, 3],
+      "count": 15
+    },
+    {
+      "unit": 2,
+      "name": "濁音・半濁音综合（平・片假名）",
+      "sourceStages": [1, 2],
+      "sourceUnits": [4, 5],
+      "count": 15
+    },
+    {
+      "unit": 3,
+      "name": "拗音综合（平・片假名）",
+      "sourceStages": [1, 2],
+      "sourceUnits": [6, 7, 8],
+      "count": 15
+    },
+    {
+      "unit": 4,
+      "name": "全量综合（所有假名）",
+      "sourceStages": [1, 2],
+      "sourceUnits": [1, 2, 3, 4, 5, 6, 7, 8],
+      "count": 15
+    }
+  ]
+}
