@@ -7,49 +7,63 @@ interface FeedbackOverlayProps {
   isCorrect: boolean
 }
 
-const COLORS = ['#FF6B9D', '#FFE66D', '#4ECDC4', '#C3B1E1', '#FF9A3C']
+// 撒花粒子配置
+const confettiColors = ['#FF6B6B', '#FFE66D', '#4ECDC4', '#95E1D3', '#FDCB6E', '#74B9FF']
+
+// 生成随机撒花粒子
+const generateConfetti = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: Math.random() * 400 - 200,
+    y: Math.random() * 300 - 150,
+    rotation: Math.random() * 720 - 360,
+    scale: 0.5 + Math.random() * 0.5,
+    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+    delay: Math.random() * 0.3,
+    shape: ['🎉', '✨', '⭐', '🌟', '💫'][Math.floor(Math.random() * 5)]
+  }))
+}
 
 export default function FeedbackOverlay({ show, isCorrect }: FeedbackOverlayProps) {
-  if (!isCorrect) return null  // 答错不显示撒花
+  const confetti = generateConfetti(12)
 
   return (
     <AnimatePresence>
-      {show && (
-        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-          {/* 撒花彩带 */}
-          {Array.from({ length: 24 }).map((_, i) => (
+      {show && isCorrect && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 pointer-events-none flex items-center justify-center z-50"
+        >
+          {confetti.map((particle) => (
             <motion.div
-              key={i}
-              className="absolute top-0 w-3 h-3 rounded-sm"
-              style={{
-                left: `${Math.random() * 100}%`,
-                backgroundColor: COLORS[i % COLORS.length],
+              key={particle.id}
+              initial={{
+                x: 0,
+                y: 0,
+                scale: 0,
+                opacity: 1
               }}
-              initial={{ y: -20, opacity: 1, rotate: 0 }}
               animate={{
-                y: window.innerHeight + 20,
-                opacity: [1, 1, 0],
-                rotate: Math.random() * 720 - 360,
-                x: (Math.random() - 0.5) * 200,
+                x: particle.x,
+                y: particle.y,
+                scale: particle.scale,
+                opacity: 0,
+                rotate: particle.rotation
               }}
               transition={{
-                duration: 1.5 + Math.random() * 0.8,
-                delay: Math.random() * 0.3,
-                ease: 'easeIn',
+                duration: 1,
+                delay: particle.delay,
+                ease: 'easeOut'
               }}
-            />
+              className="absolute text-3xl"
+              style={{ color: particle.color }}
+            >
+              {particle.shape}
+            </motion.div>
           ))}
-
-          {/* 中心正确提示 */}
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: [0, 1.3, 1], opacity: [0, 1, 0] }}
-            transition={{ duration: 0.8 }}
-          >
-            <span className="text-7xl">⭐</span>
-          </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   )

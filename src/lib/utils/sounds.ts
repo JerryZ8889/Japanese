@@ -1,38 +1,49 @@
-/** 使用 Web Audio API 生成答题音效，无需外部文件 */
+// 音效播放工具
 
-function playTone(
-  frequency: number,
-  duration: number,
-  type: OscillatorType = 'sine',
-  gain = 0.25
-) {
-  try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    const ctx = new AudioCtx()
-    const osc = ctx.createOscillator()
-    const gainNode = ctx.createGain()
-    osc.connect(gainNode)
-    gainNode.connect(ctx.destination)
-    osc.type = type
-    osc.frequency.value = frequency
-    gainNode.gain.setValueAtTime(gain, ctx.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration)
-    osc.start()
-    osc.stop(ctx.currentTime + duration)
-  } catch {
-    // 忽略不支持 AudioContext 的环境
-  }
+// 音效 URL（使用免费的音效资源）
+const SOUND_URLS = {
+  correct: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3', // 正确音效
+  wrong: 'https://assets.mixkit.co/active_storage/sfx/2001/2001-preview.mp3',   // 错误音效
 }
 
-export const playCorrectSound = () => {
-  playTone(880, 0.12)
-  setTimeout(() => playTone(1100, 0.18), 100)
-}
+// 音频缓存
+const audioCache: { [key: string]: HTMLAudioElement } = {}
 
-export const playWrongSound = () => {
-  playTone(280, 0.35, 'sawtooth', 0.2)
-}
-
+// 预加载音效
 export const preloadSounds = () => {
-  // Web Audio API 无需预加载
+  Object.entries(SOUND_URLS).forEach(([key, url]) => {
+    if (!audioCache[key]) {
+      const audio = new Audio(url)
+      audio.volume = 0.5
+      audioCache[key] = audio
+    }
+  })
+}
+
+// 播放正确音效
+export const playCorrectSound = (): Promise<void> => {
+  return playSound('correct')
+}
+
+// 播放错误音效
+export const playWrongSound = (): Promise<void> => {
+  return playSound('wrong')
+}
+
+// 播放音效
+const playSound = (key: 'correct' | 'wrong'): Promise<void> => {
+  return new Promise((resolve) => {
+    try {
+      const audio = audioCache[key] || new Audio(SOUND_URLS[key])
+      audio.currentTime = 0
+      audio.volume = 0.5
+
+      audio.onended = () => resolve()
+      audio.onerror = () => resolve()
+
+      audio.play().catch(() => resolve())
+    } catch {
+      resolve()
+    }
+  })
 }
